@@ -79,5 +79,32 @@ class TestClassProperty(unittest.TestCase):
             self.assertEqual("should not resolve", Z.get_only)
 
 
+class TestStaticInit(unittest.TestCase):
+    def test_static_init(self):
+        @static_init
+        class Foo:
+            bar = 0
+
+            @classmethod
+            def static_init(cls):
+                cls.bar = 1
+        
+        self.assertIsNotNone(getattr(Foo, 'bar', None))
+        self.assertEqual(Foo.bar, 1)
+        Foo.bar = 2
+        self.assertEqual(Foo.bar, 2)
+        foo = Foo()
+        self.assertEqual(Foo.bar, 2)
+        Foo.bar = 3
+        self.assertEqual(Foo.bar, 3)
+
+    def test_missing_static_init(self):
+        @static_init
+        class Foo:
+            pass
+
+        foo = Foo()
+
+
 if __name__ == "__main__":
     unittest.main()

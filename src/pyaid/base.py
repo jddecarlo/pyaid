@@ -59,14 +59,14 @@ class classproperty(object):
     def __get__(self, instance, owner=None):
         if not issubclass(type(owner), ClassPropertyMeta):
             raise TypeError(
-                f"Class {owner} does not extend from the required "
-                f"ClassPropertyMeta metaclass"
+                f'Class {owner} does not extend from the required '
+                f'ClassPropertyMeta metaclass'
             )
         return self.fget.__get__(None, owner)()
 
     def __set__(self, owner, value):
         if not self.fset:
-            raise AttributeError("can't set attribute")
+            raise AttributeError('cannot set attribute')
         if type(owner) is not ClassPropertyMeta:
             owner = type(owner)
         return self.fset.__get__(None, owner)(value)
@@ -80,9 +80,26 @@ class classproperty(object):
     @classmethod
     def _fix_function(cls, fn):
         if not isinstance(fn, cls._fn_types):
-            raise TypeError("Getter or setter must be a function")
+            raise TypeError('Getter or setter must be a function')
         # Always wrap in classmethod so we can call its __get__ and not
         # have to deal with difference between raw functions.
         if not isinstance(fn, (classmethod, staticmethod)):
             return classmethod(fn)
         return fn
+
+
+def static_init(cls):
+    """
+    Descriptor that allows you to definite a static initializer for a class.
+
+    Derived from: https://stackoverflow.com/questions/7396092/is-there-a-static-constructor-or-static-initializer-in-python
+
+    @static_init
+    class Foo:
+        @classmethod
+        def static_init(cls): # Only gets called once when code is run or module is imported.
+            cls.Bar = None
+    """
+    if getattr(cls, 'static_init', None):
+        cls.static_init()
+    return cls
