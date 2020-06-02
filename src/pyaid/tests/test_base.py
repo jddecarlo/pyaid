@@ -105,6 +105,37 @@ class TestStaticInit(unittest.TestCase):
 
         foo = Foo()
 
+    def test_singleton(self):
+        @singleton
+        class Foo:
+            def __init__(self):
+                self.x = 0
+
+        self.assertIsNone(Foo.instance)
+        foo = Foo()
+        self.assertIsNotNone(Foo.instance)
+        self.assertIs(foo, Foo.instance)
+        bar = Foo()
+        self.assertIsNotNone(Foo.instance)
+        self.assertIs(foo, bar)
+        self.assertIs(bar, Foo.instance)
+        self.assertIs(foo, Foo.instance)
+        self.assertEqual(Foo.instance.x, 0)
+        self.assertEqual(foo.x, 0)
+        self.assertEqual(bar.x, 0)
+        Foo.instance.x += 1
+        self.assertEqual(Foo.instance.x, 1)
+        self.assertEqual(foo.x, 1)
+        self.assertEqual(bar.x, 1)
+        foo.x += 1
+        self.assertEqual(Foo.instance.x, 2)
+        self.assertEqual(foo.x, 2)
+        self.assertEqual(bar.x, 2)
+        bar.x += 1
+        self.assertEqual(Foo.instance.x, 3)
+        self.assertEqual(foo.x, 3)
+        self.assertEqual(bar.x, 3)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -5,6 +5,8 @@ ClassPropertyMeta and classproperty were originally implemented here:
 https://gist.github.com/Skinner927/413c0e9cc8433123f426832f9fe8d931
 """
 
+import functools
+
 
 class ClassPropertyMeta(type):
     def __setattr__(self, key, value):
@@ -103,3 +105,14 @@ def static_init(cls):
     if getattr(cls, 'static_init', None):
         cls.static_init()
     return cls
+
+
+def singleton(cls):
+    """Make a class a Singleton class (only one instance)"""
+    @functools.wraps(cls)
+    def wrapper_singleton(*args, **kwargs):
+        if not wrapper_singleton.instance:
+            wrapper_singleton.instance = cls(*args, **kwargs)
+        return wrapper_singleton.instance
+    wrapper_singleton.instance = None
+    return wrapper_singleton
